@@ -25,15 +25,6 @@ $(document).ready(function () {
   $(".player-one-ready").hide();
   $(".player-two-ready").hide();
 
-  database.ref().set({
-    playerOne: "",
-    playerTwo: "",
-    playerOneChoice: "",
-    playerOneImage: "",
-    playerTwoChoice: "",
-    playerTwoImage: ""
-  });
-
   database.ref().once("value", function (snapshot) {
     if (snapshot.val().playerOne === "") {
       playerOne = true;
@@ -49,8 +40,29 @@ $(document).ready(function () {
     }
   });
 
+  function newGame() {
+    playerOneChoice = "";
+    playerTwoChoice = "";
+    playerOneImage = "";
+    playerTwoImage = "";
+
+    database.ref().set({
+      playerOne: "",
+      playerTwo: "",
+      playerOneChoice,
+      playerOneImage,
+      playerTwoChoice,
+      playerTwoImage
+    }, function (error) {
+      if (error) {
+        console.log("error updating database");
+      } else {
+        playGame();
+      }
+    });
+  }
+
   function checkTwoPlayers() {
-    console.log("checkTwoPlayers function");
     if (playerOne === true && playerTwo === true) {
       $(".player-two-wait").hide();
       $(".player-two-ready").show();
@@ -69,19 +81,6 @@ $(document).ready(function () {
   }
 
   function playGame() {
-    console.log("playGame()");
-    playerOneChoice = "";
-    playerTwoChoice = "";
-    playerOneImage = "";
-    playerTwoImage = "";
-
-    database.ref().update({
-      playerOneChoice,
-      playerOneImage,
-      playerTwoChoice,
-      playerTwoImage
-    });
-
     $(".winner").text("");
     $(".player-one-choice").empty();
     $(".player-two-choice").empty();
@@ -120,12 +119,11 @@ $(document).ready(function () {
 
       initialized = true;
     }
-}
+  }
 
   function checkBothPlayersChose() {
-    console.log("checkBothPlayersChose function");
-    if (playerOneChoice !== "" && playerTwoChoice !== "") {
-      console.log("Both players have chosen");
+    if (playerOneChoice !== undefined && playerOneChoice !== ""
+      && playerTwoChoice !== undefined && playerTwoChoice !== "") {
       $(".question-mark").hide();
       $(".player-one-choice").html($("<img>").attr("src", playerOneImage));
       $(".player-two-choice").html($("<img>").attr("src", playerTwoImage));
@@ -134,7 +132,6 @@ $(document).ready(function () {
   }
 
   function checkWinner() {
-    console.log("checkWinner function");
     if ((playerOneChoice === "rock" && playerTwoChoice === "scissors")
       || (playerOneChoice === "scissors" && playerTwoChoice === "paper")
       || (playerOneChoice === "paper" && playerTwoChoice === "rock")) {
@@ -150,7 +147,7 @@ $(document).ready(function () {
       $(".player-two-wins").text("Wins: " + playerTwoWins);
       $(".winner").text(playerTwoChoice + " beats " + playerOneChoice);
     }
-    setTimeout(playGame, 3000);
+    setTimeout(newGame, 3000);
   }
 
   setTimeout(checkTwoPlayers, 1000);
