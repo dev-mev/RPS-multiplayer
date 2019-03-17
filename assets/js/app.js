@@ -11,8 +11,8 @@ $(document).ready(function () {
   firebase.initializeApp(config);
 
   let database = firebase.database();
-  let playerOne = false;
-  let playerTwo = false;
+  let playerOne;
+  let playerTwo;
   let playerOneChoice;
   let playerTwoChoice;
   let playerOneImage;
@@ -22,20 +22,24 @@ $(document).ready(function () {
   let ties;
   let initialized = false;
 
+  $(".player-one-ready").hide();
+  $(".player-two-ready").hide();
+
   database.ref().set({
-    playerOne: false,
-    playerTwo: false,
     playerOneChoice: "",
-    playerTwoChoice: "",
     playerOneImage: "",
+    playerTwoChoice: "",
     playerTwoImage: ""
   });
 
-  database.ref().on("value", function (snapshot) {
-    if (snapshot.child("playerOne") === true) {
-      playerOne = snapshot.val().playerOne;
+  database.ref().once("value", function (snapshot) {
+    if (snapshot.child("playerOne").exists() === false) {
+      playerOne = true;
+      database.ref().update({
+        playerOne
+      });
+    } else if (snapshot.child("playerOne").exists()) {
       playerTwo = true;
-
       database.ref().update({
         playerTwo
       });
@@ -44,16 +48,7 @@ $(document).ready(function () {
 
   function checkTwoPlayers() {
     console.log("checkTwoPlayers function");
-    $(".player-one-ready").hide();
-    $(".player-two-ready").hide();
-
-    if (playerOne === true) {
-      playerTwo = true;
-
-      database.ref().update({
-        playerTwo
-      });
-
+    if (playerOne === true && playerTwo === true) {
       $(".player-two-wait").hide();
       $(".player-two-ready").show();
       $(".player-one-wait").hide();
@@ -62,15 +57,11 @@ $(document).ready(function () {
       playerTwoWins = 0;
       ties = 0;
       playGame();
-    } else if (playerOne === false) {
-      playerOne = true;
+    } else if (playerOne === true) {
+      $(".player-two-ready").hide();
       $(".player-one-wait").hide();
       $(".player-one-ready").show();
       $(".player-two-wait").show();
-      $(".player-two-ready").hide();
-      database.ref().update({
-        playerOne
-      });
     }
   }
 
@@ -161,5 +152,5 @@ $(document).ready(function () {
     setTimeout(playGame, 3000);
   }
 
-  checkTwoPlayers();
+  setTimeout(checkTwoPlayers, 1000);
 });
