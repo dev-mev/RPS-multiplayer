@@ -20,50 +20,72 @@ $(document).ready(function () {
   let playerOneWins;
   let playerTwoWins;
   let ties;
+  let initialized = false;
+
+  database.ref().set({
+    playerOne: false,
+    playerTwo: false,
+    playerOneChoice: "",
+    playerTwoChoice: "",
+    playerOneImage: "",
+    playerTwoImage: ""
+  });
+
+  database.ref().on("value", function (snapshot) {
+    if (snapshot.child("playerOne") === true) {
+      playerOne = snapshot.val().playerOne;
+      playerTwo = true;
+
+      database.ref().update({
+        playerTwo
+      });
+    }
+  });
 
   function checkTwoPlayers() {
+    console.log("checkTwoPlayers function");
     $(".player-one-ready").hide();
     $(".player-two-ready").hide();
 
-    // At the initial load and subsequent value changes, get a snapshot of the stored data.
-    // This function allows you to update your page in real-time when the firebase database changes.
-    database.ref().on("child_added", function (snapshot) {
-      if (snapshot.child("playerOne").exists()) {
-        playerOne = snapshot.val().playerOne;
-        playerTwo = true;
+    if (playerOne === true) {
+      playerTwo = true;
 
-        database.ref().update({
-          playerTwo
-        });
+      database.ref().update({
+        playerTwo
+      });
 
-        $(".player-two-wait").hide();
-        $(".player-two-ready").show();
-        $(".player-one-wait").hide();
-        $(".player-one-ready").show();
-        playerOneWins = 0;
-        playerTwoWins = 0;
-        ties = 0;
-        playGame();
-      } else if (playerOne === false) {
-        playerOne = true;
-        $(".player-one-wait").hide();
-        $(".player-one-ready").show();
-        $(".player-two-wait").show();
-        $(".player-two-ready").hide();
-        database.ref().set({
-          playerOne
-        });
-      }
-    });
+      $(".player-two-wait").hide();
+      $(".player-two-ready").show();
+      $(".player-one-wait").hide();
+      $(".player-one-ready").show();
+      playerOneWins = 0;
+      playerTwoWins = 0;
+      ties = 0;
+      playGame();
+    } else if (playerOne === false) {
+      playerOne = true;
+      $(".player-one-wait").hide();
+      $(".player-one-ready").show();
+      $(".player-two-wait").show();
+      $(".player-two-ready").hide();
+      database.ref().update({
+        playerOne
+      });
+    }
   }
 
   function playGame() {
     console.log("playGame()");
+    playerOneChoice = "";
+    playerTwoChoice = "";
+    playerOneImage = "";
+    playerTwoImage = "";
+
     database.ref().update({
-      playerOneChoice: "",
-      playerOneImage: "",
-      playerTwoChoice: "",
-      playerTwoImage: ""
+      playerOneChoice,
+      playerOneImage,
+      playerTwoChoice,
+      playerTwoImage
     });
 
     $(".winner").text("");
@@ -71,32 +93,46 @@ $(document).ready(function () {
     $(".player-two-choice").empty();
     $(".question-mark").show();
 
-    $(".player-one-img").on("click", function () {
-      playerOneChoice = $(this).data("choice");
-      playerOneImage = $(this).attr("src");
-      console.log(playerOneChoice);
-      database.ref().update({
-        playerOneChoice,
-        playerOneImage
+    if (!initialized) {
+      $(".player-one-img").on("click", function () {
+        playerOneChoice = $(this).data("choice");
+        playerOneImage = $(this).attr("src");
+        console.log(playerOneChoice);
+        database.ref().update({
+          playerOneChoice,
+          playerOneImage
+        }, function (error) {
+          if (error) {
+            console.log("error updating database")
+          } else {
+            checkBothPlayersChose();
+          }
+        });
       });
-      checkBothPlayersChose();
-    });
 
-    $(".player-two-img").on("click", function () {
-      playerTwoChoice = $(this).data("choice");
-      playerTwoImage = $(this).attr("src");
-      console.log(playerTwoChoice);
-      database.ref().update({
-        playerTwoChoice,
-        playerTwoImage
+      $(".player-two-img").on("click", function () {
+        playerTwoChoice = $(this).data("choice");
+        playerTwoImage = $(this).attr("src");
+        console.log(playerTwoChoice);
+        database.ref().update({
+          playerTwoChoice,
+          playerTwoImage
+        }, function (error) {
+          if (error) {
+            console.log("error updating database")
+          } else {
+            checkBothPlayersChose();
+          }
+        });
       });
-      checkBothPlayersChose();
-    });
-  }
+
+      initialized = true;
+    }
+}
 
   function checkBothPlayersChose() {
-    console.log("checkBothPlayersChose")
-    if (playerOneChoice !== undefined && playerTwoChoice !== undefined) {
+    console.log("checkBothPlayersChose function");
+    if (playerOneChoice !== "" && playerTwoChoice !== "") {
       console.log("Both players have chosen");
       $(".question-mark").hide();
       $(".player-one-choice").html($("<img>").attr("src", playerOneImage));
@@ -106,6 +142,7 @@ $(document).ready(function () {
   }
 
   function checkWinner() {
+    console.log("checkWinner function");
     if ((playerOneChoice === "rock" && playerTwoChoice === "scissors")
       || (playerOneChoice === "scissors" && playerTwoChoice === "paper")
       || (playerOneChoice === "paper" && playerTwoChoice === "rock")) {
@@ -114,6 +151,7 @@ $(document).ready(function () {
       $(".winner").text(playerOneChoice + " beats " + playerTwoChoice);
     } else if (playerOneChoice === playerTwoChoice) {
       ties++;
+      $(".ties").text("Ties: " + ties);
       $(".winner").text("Tie");
     } else {
       playerTwoWins++;
