@@ -24,16 +24,18 @@ $(document).ready(function () {
   let initialized = false;
 
   database.ref().once("value", function (snapshot) {
-    if (snapshot.val().playerOne === "") {
+    if (snapshot.val().playerOne === false) {
       playerOne = true;
       player = "playerOne";
+      console.log(player);
       database.ref().update({
         playerOne
       });
-    } else if (snapshot.val().playerOne !== "") {
+    } else if (snapshot.val().playerOne === true) {
       playerOne = true;
       playerTwo = true;
       player = "playerTwo";
+      console.log(player);
       database.ref().update({
         playerTwo
       });
@@ -47,8 +49,8 @@ $(document).ready(function () {
     playerTwoImage = "";
 
     database.ref().set({
-      playerOne: "",
-      playerTwo: "",
+      playerOne: false,
+      playerTwo: false,
       playerOneChoice,
       playerOneImage,
       playerTwoChoice,
