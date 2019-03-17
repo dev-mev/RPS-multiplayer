@@ -26,6 +26,8 @@ $(document).ready(function () {
   $(".player-two-ready").hide();
 
   database.ref().set({
+    playerOne: "",
+    playerTwo: "",
     playerOneChoice: "",
     playerOneImage: "",
     playerTwoChoice: "",
@@ -33,12 +35,13 @@ $(document).ready(function () {
   });
 
   database.ref().once("value", function (snapshot) {
-    if (snapshot.child("playerOne").exists() === false) {
+    if (snapshot.child("playerOne") === "") {
       playerOne = true;
       database.ref().update({
         playerOne
       });
-    } else if (snapshot.child("playerOne").exists()) {
+    } else if (snapshot.child("playerOne") !== "") {
+      playerOne = true;
       playerTwo = true;
       database.ref().update({
         playerTwo
