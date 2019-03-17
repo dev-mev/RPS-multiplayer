@@ -21,22 +21,28 @@
     <div class="container">
       <div class="row playfield">
         <div class="player-one col-md-4 text-center">
-          <p class="lead">Player One</p>
+          <p class="lead player-one-wait">Waiting for Player One</p>
+          <p class="lead player-one-ready">Player One Ready</p>
+          <p class="player-one-wins">Wins: 0</p>
           <img class="player-one-img" id="player-one-rock" data-choice="rock" src="assets/images/rock.png">
           <img class="player-one-img" id="player-one-paper" data-choice="paper" src="assets/images/paper.png">
           <img class="player-one-img" id="player-one-scissors" data-choice="scissors" src="assets/images/scissors.png">
         </div>
 
         <div class="chosen col-md-4 text-center">
+            <p class="ties">Ties: 0</p>
             <img class="question-mark" id="player-one-question" src="assets/images/question.png">
             <div class="player-one-choice"></div>
             <h1>vs.</h1>
             <img class="question-mark" id="player-two-question" src="assets/images/question.png">
             <div class="player-two-choice"></div>
+            <h1 class="winner"></h1>
         </div>
 
         <div class="player-two col-md-4 text-center">
-          <p class="lead">Player Two</p>
+          <p class="lead player-two-wait">Waiting for Player Two</p>
+          <p class="lead player-two-ready">Player Two Ready</p>
+          <p class="player-two-wins">Wins: 0</p>
           <img class="player-two-img" id="player-two-rock" data-choice="rock" src="assets/images/rock.png">
           <img class="player-two-img" id="player-two-paper" data-choice="paper" src="assets/images/paper.png">
           <img class="player-two-img" id="player-two-scissors" data-choice="scissors" src="assets/images/scissors.png">
