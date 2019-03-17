@@ -1,0 +1,19 @@
+
+body {
+    background-color: peachpuff;
+    font-size: 175%;
+}
+
+.jumbotron {
+    background-color: rgba($color: coral, $alpha: .5);
+    color: white;
+  }
+
+.chosen {
+    margin: auto 0;
+}
+
+.player-one-img:active, .player-two-img:active {
+    position: relative;
+    bottom: -20px;
+}

@@ -13,6 +13,7 @@ $(document).ready(function () {
   let database = firebase.database();
   let playerOne;
   let playerTwo;
+  let player;
   let playerOneChoice;
   let playerTwoChoice;
   let playerOneImage;
@@ -22,18 +23,17 @@ $(document).ready(function () {
   let ties;
   let initialized = false;
 
-  $(".player-one-ready").hide();
-  $(".player-two-ready").hide();
-
   database.ref().once("value", function (snapshot) {
     if (snapshot.val().playerOne === "") {
       playerOne = true;
+      player = "playerOne";
       database.ref().update({
         playerOne
       });
     } else if (snapshot.val().playerOne !== "") {
       playerOne = true;
       playerTwo = true;
+      player = "playerTwo";
       database.ref().update({
         playerTwo
       });
@@ -64,19 +64,14 @@ $(document).ready(function () {
 
   function checkTwoPlayers() {
     if (playerOne === true && playerTwo === true) {
-      $(".player-two-wait").hide();
-      $(".player-two-ready").show();
-      $(".player-one-wait").hide();
-      $(".player-one-ready").show();
+      $(".player-one-text").text("Player one ready");
+      $(".player-two-text").text("Player two ready");
       playerOneWins = 0;
       playerTwoWins = 0;
       ties = 0;
       playGame();
     } else if (playerOne === true) {
-      $(".player-two-ready").hide();
-      $(".player-one-wait").hide();
-      $(".player-one-ready").show();
-      $(".player-two-wait").show();
+      $(".player-one-text").text("Player one ready");
     }
   }
 
@@ -88,33 +83,39 @@ $(document).ready(function () {
 
     if (!initialized) {
       $(".player-one-img").on("click", function () {
-        playerOneChoice = $(this).data("choice");
-        playerOneImage = $(this).attr("src");
-        database.ref().update({
-          playerOneChoice,
-          playerOneImage
-        }, function (error) {
-          if (error) {
-            console.log("error updating database");
-          } else {
-            checkBothPlayersChose();
-          }
-        });
+        if (player === "playerOne") {
+          playerOneChoice = $(this).data("choice");
+          playerOneImage = $(this).attr("src");
+          $(".player-one-text").text("Player one has made their selection");
+          database.ref().update({
+            playerOneChoice,
+            playerOneImage
+          }, function (error) {
+            if (error) {
+              console.log("error updating database");
+            } else {
+              checkBothPlayersChose();
+            }
+          });
+        }
       });
 
       $(".player-two-img").on("click", function () {
-        playerTwoChoice = $(this).data("choice");
-        playerTwoImage = $(this).attr("src");
-        database.ref().update({
-          playerTwoChoice,
-          playerTwoImage
-        }, function (error) {
-          if (error) {
-            console.log("error updating database");
-          } else {
-            checkBothPlayersChose();
-          }
-        });
+        if (player === "playerTwo") {
+          playerTwoChoice = $(this).data("choice");
+          playerTwoImage = $(this).attr("src");
+          $(".player-two-text").text("Player two has made their selection");
+          database.ref().update({
+            playerTwoChoice,
+            playerTwoImage
+          }, function (error) {
+            if (error) {
+              console.log("error updating database");
+            } else {
+              checkBothPlayersChose();
+            }
+          });
+        }
       });
 
       initialized = true;
