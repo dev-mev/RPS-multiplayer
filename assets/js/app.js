@@ -35,12 +35,12 @@ $(document).ready(function () {
   });
 
   database.ref().once("value", function (snapshot) {
-    if (snapshot.child("playerOne") === "") {
+    if (snapshot.val().playerOne === "") {
       playerOne = true;
       database.ref().update({
         playerOne
       });
-    } else if (snapshot.child("playerOne") !== "") {
+    } else if (snapshot.val().playerOne !== "") {
       playerOne = true;
       playerTwo = true;
       database.ref().update({
@@ -91,13 +91,12 @@ $(document).ready(function () {
       $(".player-one-img").on("click", function () {
         playerOneChoice = $(this).data("choice");
         playerOneImage = $(this).attr("src");
-        console.log(playerOneChoice);
         database.ref().update({
           playerOneChoice,
           playerOneImage
         }, function (error) {
           if (error) {
-            console.log("error updating database")
+            console.log("error updating database");
           } else {
             checkBothPlayersChose();
           }
@@ -107,13 +106,12 @@ $(document).ready(function () {
       $(".player-two-img").on("click", function () {
         playerTwoChoice = $(this).data("choice");
         playerTwoImage = $(this).attr("src");
-        console.log(playerTwoChoice);
         database.ref().update({
           playerTwoChoice,
           playerTwoImage
         }, function (error) {
           if (error) {
-            console.log("error updating database")
+            console.log("error updating database");
           } else {
             checkBothPlayersChose();
           }
