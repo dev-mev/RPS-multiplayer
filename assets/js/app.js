@@ -23,13 +23,19 @@ $(document).ready(function () {
   let ties;
   let initialized = false;
 
-  database.ref().once("value", function (snapshot) {
+  database.ref().on("value", function (snapshot) {
     if (snapshot.val().playerOne === false) {
       playerOne = true;
       player = "playerOne";
       console.log(player);
       database.ref().update({
         playerOne
+      }, function (error) {
+        if (error) {
+          console.log("error updating database");
+        } else {
+          checkTwoPlayers();
+        }
       });
     } else if (snapshot.val().playerOne === true) {
       playerOne = true;
@@ -38,6 +44,12 @@ $(document).ready(function () {
       console.log(player);
       database.ref().update({
         playerTwo
+      }, function (error) {
+        if (error) {
+          console.log("error updating database");
+        } else {
+          checkTwoPlayers();
+        }
       });
     }
   });
@@ -152,6 +164,4 @@ $(document).ready(function () {
     }
     setTimeout(newGame, 3000);
   }
-
-  setTimeout(checkTwoPlayers, 1000);
 });
