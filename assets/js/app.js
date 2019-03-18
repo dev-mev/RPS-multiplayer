@@ -23,7 +23,7 @@ $(document).ready(function () {
   let ties;
   let initialized = false;
 
-  database.ref().on("value", function (snapshot) {
+  database.ref().once("value", function (snapshot) {
     if (snapshot.val().playerOne === false) {
       playerOne = true;
       player = "playerOne";
