@@ -96,6 +96,7 @@ $(document).ready(function () {
         if (player === "playerOne") {
           playerOneChoice = $(this).data("choice");
           playerOneImage = $(this).attr("src");
+          console.log(playerTwoChoice);
           console.log("Player One made selection");
           $(".player-one-text").text("Player one has made their selection");
           database.ref().update({
@@ -109,6 +110,7 @@ $(document).ready(function () {
         if (player === "playerTwo") {
           playerTwoChoice = $(this).data("choice");
           playerTwoImage = $(this).attr("src");
+          console.log(playerTwoChoice);
           $(".player-two-text").text("Player two has made their selection");
           database.ref().update({
             playerTwoChoice,
@@ -126,10 +128,11 @@ $(document).ready(function () {
       $(".question-mark").hide();
       $(".player-one-choice").html($("<img>").attr("src", snapshot.val().playerOneImage));
       $(".player-two-choice").html($("<img>").attr("src", snapshot.val().playerTwoImage));
-      
-      if ((playerOneChoice === "rock" && playerTwoChoice === "scissors")
-      || (playerOneChoice === "scissors" && playerTwoChoice === "paper")
-      || (playerOneChoice === "paper" && playerTwoChoice === "rock")) {
+      console.log("VALIDATING");
+
+      if ((snapshot.val().playerOneChoice === "rock" && snapshot.val().playerTwoChoice === "scissors")
+      || (snapshot.val().playerOneChoice === "scissors" && snapshot.val().playerTwoChoice === "paper")
+      || (snapshot.val().playerOneChoice === "paper" && snapshot.val().playerTwoChoice === "rock")) {
         playerOneWins++;
         $(".player-one-wins").text("Wins: " + playerOneWins);
         $(".winner").text(snapshot.val().playerOneChoice + " beats " + snapshot.val().playerTwoChoice);
