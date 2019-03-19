@@ -94,6 +94,7 @@ $(document).ready(function () {
     if (!initialized) {
       $(".player-one-img").on("click", function () {
         if (player === "playerOne") {
+          $(".player-one-img").removeAttr("style");
           playerOneChoice = $(this).data("choice");
           playerOneImage = $(this).attr("src");
           $(this).css("border", "solid 2px #FF1D8E");
@@ -107,6 +108,7 @@ $(document).ready(function () {
 
       $(".player-two-img").on("click", function () {
         if (player === "playerTwo") {
+          $(".player-two-img").removeAttr("style");
           playerTwoChoice = $(this).data("choice");
           playerTwoImage = $(this).attr("src");
           $(this).css("border", "solid 2px #FF1D8E");
@@ -151,11 +153,22 @@ $(document).ready(function () {
 
   $(window).on("unload", function () {
     playersRef.off("value", playersListener);
+    playerOneChoice = "";
+    playerTwoChoice = "";
+    playerOneImage = "";
+    playerTwoImage = "";
     playerOne = false;
     playerTwo = false;
+    database.ref().update({
+      playerOneChoice,
+      playerOneImage,
+      playerTwoChoice,
+      playerTwoImage
+    });
     playersRef.update({
       playerOne,
       playerTwo
     });
+
   });
 });
