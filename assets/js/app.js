@@ -28,6 +28,7 @@ $(document).ready(function () {
     if (snapshot.val().playerOne === false) {
       playerOne = true;
       player = "playerOne";
+      $(".player-one-text").text("Player one ready");
       console.log(player);
       playersRef.update({
         playerOne
@@ -85,7 +86,6 @@ $(document).ready(function () {
   }
 
   function playGame() {
-    console.log("playGame function");
     $(".winner").text("");
     $(".player-one-choice").empty();
     $(".player-two-choice").empty();
@@ -96,8 +96,7 @@ $(document).ready(function () {
         if (player === "playerOne") {
           playerOneChoice = $(this).data("choice");
           playerOneImage = $(this).attr("src");
-          console.log(playerTwoChoice);
-          console.log("Player One made selection");
+          $(this).css("border", "solid 2px #FF1D8E");
           $(".player-one-text").text("Player one has made their selection");
           database.ref().update({
             playerOneChoice,
@@ -110,7 +109,7 @@ $(document).ready(function () {
         if (player === "playerTwo") {
           playerTwoChoice = $(this).data("choice");
           playerTwoImage = $(this).attr("src");
-          console.log(playerTwoChoice);
+          $(this).css("border", "solid 2px #FF1D8E");
           $(".player-two-text").text("Player two has made their selection");
           database.ref().update({
             playerTwoChoice,
@@ -128,7 +127,6 @@ $(document).ready(function () {
       $(".question-mark").hide();
       $(".player-one-choice").html($("<img>").attr("src", snapshot.val().playerOneImage));
       $(".player-two-choice").html($("<img>").attr("src", snapshot.val().playerTwoImage));
-      console.log("VALIDATING");
 
       if ((snapshot.val().playerOneChoice === "rock" && snapshot.val().playerTwoChoice === "scissors")
       || (snapshot.val().playerOneChoice === "scissors" && snapshot.val().playerTwoChoice === "paper")
@@ -145,6 +143,8 @@ $(document).ready(function () {
         $(".player-two-wins").text("Wins: " + playerTwoWins);
         $(".winner").text(snapshot.val().playerTwoChoice + " beats " + snapshot.val().playerOneChoice);
       }
+      setTimeout(function () { $(".player-one-img").removeAttr("style"); }, 2000);
+      setTimeout(function () { $(".player-two-img").removeAttr("style"); }, 2000);
       setTimeout(newGame, 3000);
     }
   });
