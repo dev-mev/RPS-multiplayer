@@ -11,8 +11,9 @@ $(document).ready(function () {
   firebase.initializeApp(config);
 
   let database = firebase.database();
-  let playerOne;
-  let playerTwo;
+  let playersRef = database.ref("players");
+  let playerOne = false;
+  let playerTwo = false;
   let player;
   let playerOneChoice;
   let playerTwoChoice;
@@ -23,33 +24,25 @@ $(document).ready(function () {
   let ties;
   let initialized = false;
 
-  database.ref().once("value", function (snapshot) {
+  let playersListener = playersRef.on("value", function (snapshot) {
     if (snapshot.val().playerOne === false) {
       playerOne = true;
       player = "playerOne";
       console.log(player);
-      database.ref().update({
+      playersRef.update({
         playerOne
-      }, function (error) {
-        if (error) {
-          console.log("error updating database");
-        } else {
-          checkTwoPlayers();
-        }
       });
-    } else if (snapshot.val().playerOne === true) {
+    } else if (snapshot.val().playerOne === true && snapshot.val().playerTwo === true) {
+      playerOne = true;
+      playerTwo = true;
+      checkTwoPlayers();
+    } else if (snapshot.val().playerOne === true && player !== "playerOne") {
       playerOne = true;
       playerTwo = true;
       player = "playerTwo";
       console.log(player);
-      database.ref().update({
+      playersRef.update({
         playerTwo
-      }, function (error) {
-        if (error) {
-          console.log("error updating database");
-        } else {
-          checkTwoPlayers();
-        }
       });
     }
   });
@@ -60,9 +53,10 @@ $(document).ready(function () {
     playerOneImage = "";
     playerTwoImage = "";
 
-    database.ref().set({
-      playerOne: false,
-      playerTwo: false,
+    $(".player-one-text").text("Player one ready");
+    $(".player-two-text").text("Player two ready");
+
+    database.ref().update({
       playerOneChoice,
       playerOneImage,
       playerTwoChoice,
@@ -77,6 +71,7 @@ $(document).ready(function () {
   }
 
   function checkTwoPlayers() {
+    console.log("check two players function")
     if (playerOne === true && playerTwo === true) {
       $(".player-one-text").text("Player one ready");
       $(".player-two-text").text("Player two ready");
@@ -90,6 +85,7 @@ $(document).ready(function () {
   }
 
   function playGame() {
+    console.log("playGame function");
     $(".winner").text("");
     $(".player-one-choice").empty();
     $(".player-two-choice").empty();
@@ -100,16 +96,11 @@ $(document).ready(function () {
         if (player === "playerOne") {
           playerOneChoice = $(this).data("choice");
           playerOneImage = $(this).attr("src");
+          console.log("Player One made selection");
           $(".player-one-text").text("Player one has made their selection");
           database.ref().update({
             playerOneChoice,
             playerOneImage
-          }, function (error) {
-            if (error) {
-              console.log("error updating database");
-            } else {
-              checkBothPlayersChose();
-            }
           });
         }
       });
@@ -122,12 +113,6 @@ $(document).ready(function () {
           database.ref().update({
             playerTwoChoice,
             playerTwoImage
-          }, function (error) {
-            if (error) {
-              console.log("error updating database");
-            } else {
-              checkBothPlayersChose();
-            }
           });
         }
       });
@@ -136,32 +121,38 @@ $(document).ready(function () {
     }
   }
 
-  function checkBothPlayersChose() {
-    if (playerOneChoice !== undefined && playerOneChoice !== ""
-      && playerTwoChoice !== undefined && playerTwoChoice !== "") {
+  database.ref().on("value", function (snapshot) {
+    if (snapshot.val().playerOneChoice !== "" && snapshot.val().playerTwoChoice !== "") {
       $(".question-mark").hide();
-      $(".player-one-choice").html($("<img>").attr("src", playerOneImage));
-      $(".player-two-choice").html($("<img>").attr("src", playerTwoImage));
-      checkWinner();
-    }
-  }
-
-  function checkWinner() {
-    if ((playerOneChoice === "rock" && playerTwoChoice === "scissors")
+      $(".player-one-choice").html($("<img>").attr("src", snapshot.val().playerOneImage));
+      $(".player-two-choice").html($("<img>").attr("src", snapshot.val().playerTwoImage));
+      
+      if ((playerOneChoice === "rock" && playerTwoChoice === "scissors")
       || (playerOneChoice === "scissors" && playerTwoChoice === "paper")
       || (playerOneChoice === "paper" && playerTwoChoice === "rock")) {
-      playerOneWins++;
-      $(".player-one-wins").text("Wins: " + playerOneWins);
-      $(".winner").text(playerOneChoice + " beats " + playerTwoChoice);
-    } else if (playerOneChoice === playerTwoChoice) {
-      ties++;
-      $(".ties").text("Ties: " + ties);
-      $(".winner").text("Tie");
-    } else {
-      playerTwoWins++;
-      $(".player-two-wins").text("Wins: " + playerTwoWins);
-      $(".winner").text(playerTwoChoice + " beats " + playerOneChoice);
+        playerOneWins++;
+        $(".player-one-wins").text("Wins: " + playerOneWins);
+        $(".winner").text(snapshot.val().playerOneChoice + " beats " + snapshot.val().playerTwoChoice);
+      } else if (snapshot.val().playerOneChoice === snapshot.val().playerTwoChoice) {
+        ties++;
+        $(".ties").text("Ties: " + ties);
+        $(".winner").text("Tie");
+      } else {
+        playerTwoWins++;
+        $(".player-two-wins").text("Wins: " + playerTwoWins);
+        $(".winner").text(snapshot.val().playerTwoChoice + " beats " + snapshot.val().playerOneChoice);
+      }
+      setTimeout(newGame, 3000);
     }
-    setTimeout(newGame, 3000);
-  }
+  });
+
+  $(window).on("unload", function () {
+    playersRef.off("value", playersListener);
+    playerOne = false;
+    playerTwo = false;
+    playersRef.update({
+      playerOne,
+      playerTwo
+    });
+  });
 });
